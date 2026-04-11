@@ -12,7 +12,7 @@ Each iTerm2 session independently shows:
 
 - **Status bar** — always visible: `⎇ main ✓` when clean, `⎇ main* 4 files` when dirty
 - **Interactive popover on click** — a full dark-themed panel with:
-  - Collapsible **local and remote branch lists** — double-click any branch to checkout
+  - Collapsible **local and remote branch lists** — double-click any branch to checkout, click the copy icon to copy the branch name to clipboard
   - **Changed files** grouped by status (Staged, Modified, Deleted, Untracked) — double-click to open in editor, click the diff icon to open a two-pane HEAD vs working copy diff
   - Quick action buttons: **Commit**, **Push**, **Pull**
   - **Editor picker** — select your preferred editor once via a native macOS file picker, saved for future use
@@ -133,6 +133,8 @@ Click the component to open the interactive popover.
 The popover shows two collapsible sections — **Local** and **Remote** — with branch counts. Click the header to expand/collapse. The current branch is highlighted with a `✓` marker.
 
 **Double-click** any branch to checkout. A native macOS confirmation dialog will appear before switching.
+
+**Click the copy icon** (appears on hover) next to any branch to copy its name to the clipboard. A confirmation message is shown in the status bar.
 
 ### File list
 

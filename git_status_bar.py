@@ -219,7 +219,18 @@ body {
 .branch-item .b-name {
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
 }
+.branch-item .b-copy {
+  flex-shrink: 0;
+  opacity: 0;
+  cursor: pointer;
+  padding: 1px 3px;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--transition), background var(--transition);
+}
+.branch-item:hover .b-copy { opacity: 0.6; }
+.branch-item .b-copy:hover { opacity: 1; background: var(--bg-hover); }
 .branch-none { font-size: 10px; color: var(--text-muted); padding: 3px 6px; font-style: italic; }
 
 /* ── Section label ───────────────────────────────────────── */
@@ -744,6 +755,7 @@ def _popover_html(path: str, session_id: str) -> str:
     ICO_PULL   = "<svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='12' y1='5' x2='12' y2='19'/><polyline points='19 12 12 19 5 12'/></svg>"
     ICO_EDITOR = "<svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='16 18 22 12 16 6'/><polyline points='8 6 2 12 8 18'/></svg>"
     ICO_DIFF   = "<svg width='10' height='10' viewBox='0 0 16 16' fill='currentColor' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' d='M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM9.05 3a2.5 2.5 0 0 1 4.9 0H16v1h-2.05a2.5 2.5 0 0 1-4.9 0H0V3h9.05zM4.5 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zm-2.45 1a2.5 2.5 0 0 1 4.9 0H16v1H6.95a2.5 2.5 0 0 1-4.9 0H0v-1h2.05zM8 7a1 1 0 0 0 0 2h5a1 1 0 0 0 0-2H8zM3 8a1 1 0 0 1 1-1h.5a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1z'/></svg>"
+    ICO_COPY   = "<svg width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='13' height='13' rx='2' ry='2'/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>"
     ICO_CHEVRON= "<svg width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='9 18 15 12 9 6'/></svg>"
     ICO_NOREPO = "<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='12' cy='12' r='10'/><line x1='4.93' y1='4.93' x2='19.07' y2='19.07'/></svg>"
     ICO_GIT    = "<svg width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='18' cy='18' r='3'/><circle cx='6' cy='6' r='3'/><path d='M13 6h3a2 2 0 0 1 2 2v7'/><line x1='6' y1='9' x2='6' y2='21'/></svg>"
@@ -783,6 +795,7 @@ def _popover_html(path: str, session_id: str) -> str:
                 f'<div class="{cls}" title="{safe_b}" data-branch="{safe_b}">'
                 f'<span class="b-icon">{cur_icon}</span>'
                 f'<span class="b-name">{safe_b}</span>'
+                f'<span class="b-copy" data-branch="{safe_b}" title="Copy branch name">{ICO_COPY}</span>'
                 f'</div>'
             )
         return "".join(items)
@@ -886,6 +899,24 @@ function setStatus(msg, cls) {{
   txt.textContent = msg;
 }}
 
+function copyBranch(name) {{
+  if (navigator.clipboard) {{
+    navigator.clipboard.writeText(name).then(function() {{
+      setStatus('Copied: ' + name, 'ok');
+    }});
+  }} else {{
+    var ta = document.createElement('textarea');
+    ta.value = name;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    setStatus('Copied: ' + name, 'ok');
+  }}
+}}
+
 function onResult(resultJson) {{
   try {{
     var r = JSON.parse(resultJson);
@@ -935,6 +966,16 @@ document.addEventListener('DOMContentLoaded', function() {{
       e.preventDefault();
       var branch = el.getAttribute('data-branch');
       if (branch) doCheckout(branch);
+    }});
+  }});
+
+  // Branch copy button
+  document.querySelectorAll('.b-copy').forEach(function(el) {{
+    el.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      e.preventDefault();
+      var branch = el.getAttribute('data-branch');
+      if (branch) copyBranch(branch);
     }});
   }});
 
