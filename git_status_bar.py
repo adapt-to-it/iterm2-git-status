@@ -2067,11 +2067,35 @@ async def main(connection: iterm2.Connection):
         if not path:
             return
         popover = await loop.run_in_executor(None, _popover_html, path, session_id)
-        await component.async_open_popover(
-            session_id,
-            popover,
-            iterm2.util.Size(450, 650),
-        )
+        # The status bar view can become detached from a valid window between
+        # the click and this call — e.g. the user drags a tab out, switches
+        # tab, or closes the window while _popover_html runs. Asking AppKit
+        # to show an NSPopover on a view with no window raises NSException
+        # and crashes iTerm2. Re-validate the session is still the active
+        # one, then guard the call itself.
+        session = app.get_session_by_id(session_id)
+        if session is None:
+            return
+        tab = session.tab
+        if tab is None:
+            return
+        window = tab.window
+        if window is None:
+            return
+        active_window = app.current_terminal_window
+        if active_window is None or active_window.window_id != window.window_id:
+            return
+        active_tab = window.current_tab
+        if active_tab is None or active_tab.tab_id != tab.tab_id:
+            return
+        try:
+            await component.async_open_popover(
+                session_id,
+                popover,
+                iterm2.util.Size(450, 650),
+            )
+        except iterm2.RPCException:
+            pass
 
     @iterm2.RPC
     async def git_status_bar_action(session_id, action, arg):
