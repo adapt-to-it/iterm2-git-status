@@ -13,13 +13,20 @@ Each iTerm2 session independently shows:
 - **Status bar** — always visible: `⎇ main ✓` when clean, `⎇ main* 4 files` when dirty
 - **Interactive popover on click** — a full dark-themed panel with:
   - Collapsible **local and remote branch lists** — double-click any branch to checkout, click the copy icon to copy the branch name to clipboard
-  - **Changed files** grouped by status (Staged, Modified, Deleted, Untracked) — double-click to open in editor, click the diff icon to open a two-pane HEAD vs working copy diff
-  - Quick action buttons: **Commit**, **Push**, **Pull**
+  - **`+` button next to Local** — inline branch creator: enter a name in the commit input (switches to blue "branch mode") and press Enter to `git checkout -b`
+  - **Changed files** grouped by status (Staged, Modified, Deleted, Untracked) — each row shows per-file `+added -deleted` line counts (omitted for untracked and shown as `bin` for binary files)
+  - **Checkboxes** on every file and section header, with a global "Select all" / "Deselect all" toggle and a live `N / M selected` counter
+  - **Inline commit input** that slides in above the action bar as soon as you select at least one file. Press Enter to commit only the selected files; press Esc to cancel the selection
+  - **Single-click** on a filename copies the relative path to the clipboard, with a green flash animation on the row
+  - **Right-click context menu** (themed, not the browser default) with: Select, Copy name, Copy relative path, Copy absolute path, Reveal in Finder — plus **Add to .gitignore** for untracked files (auto-creates or appends to `.gitignore` at the repo root, handles files vs folders, deduplicates existing entries)
+  - **Live refresh** — after any mutating action (commit, push/pull, checkout, new branch, add-to-.gitignore) the popover re-renders in place while preserving scroll position; no need to close and reopen it
+  - Quick action buttons: **Commit** (disabled until a file is selected and a message is typed), **Push**, **Pull**
   - **Editor picker** — select your preferred editor once via a native macOS file picker, saved for future use
 
 Changes are reflected:
 - **Instantly** when you `cd` to a different directory (uses iTerm2 Shell Integration)
-- **Within 5 seconds** after a `git commit`, `git checkout`, `git stash`, etc.
+- **Instantly** inside the popover after any action you trigger from it
+- **Within 5 seconds** after an external `git commit`, `git checkout`, `git stash`, etc.
 
 Every terminal session shows its **own** git state — completely independent, no shared global state.
 
@@ -32,27 +39,35 @@ Status bar (clean):       ⎇ main ✓
 Status bar (dirty):       ⎇ feature/auth* 3 files
 
 Popover on click:
-┌────────────────────────────────────────┐
-│ ⎇ feature/auth  —  3 changes          │
-├────────────────────────────────────────┤
-│ ▶ LOCAL (3)          ▶ REMOTE (5)      │
-│   * main                               │
-│     feature/auth  ← current            │
-│     fix/login                          │
-├────────────────────────────────────────┤
-│ STAGED (1)                             │
-│   ● src/auth.py                  [±]   │
-│ MODIFIED (1)                           │
-│   ● src/utils.py                 [±]   │
-│ UNTRACKED (1)                          │
-│   ● tests/test_auth.py           [±]   │
-├────────────────────────────────────────┤
-│ [Commit]   [Push]   [Pull]  [editor]   │
-│ ● ready                                │
-└────────────────────────────────────────┘
+┌──────────────────────────────────────────────────┐
+│ ⎇ feature/auth  —  3 changes                    │
+├──────────────────────────────────────────────────┤
+│ ▶ LOCAL (3)                                  [+] │
+│   * main                                         │
+│     feature/auth  ← current                      │
+│     fix/login                                    │
+│ ▶ REMOTE (5)                                     │
+├──────────────────────────────────────────────────┤
+│ [ Select all ]                  1 / 3 selected   │
+│                                                  │
+│ [✓] STAGED (1)                                   │
+│   [✓] ● src/auth.py         +12 -3        [±]   │
+│ [–] MODIFIED (1)                                 │
+│   [ ] ● src/utils.py        +4  -1        [±]   │
+│ [ ] UNTRACKED (1)                                │
+│   [ ] ● tests/test_auth.py                [±]   │
+├──────────────────────────────────────────────────┤
+│ > Commit message…                                │
+├──────────────────────────────────────────────────┤
+│ [Commit (1)]   [Push]   [Pull]     [editor]      │
+│ ● ready                                          │
+└──────────────────────────────────────────────────┘
 ```
 
-The `[±]` diff icon appears on hover next to each file and opens the two-pane diff view in your editor.
+- The `[±]` diff icon appears on hover and opens a two-pane HEAD vs working copy diff in your editor.
+- The `[+]` next to `LOCAL` opens inline branch creation — the commit input turns blue and accepts a branch name.
+- The commit input row only appears when at least one file is checked.
+- Right-click a file for Copy name / relative / absolute path, Reveal in Finder, and (for untracked) Add to .gitignore.
 
 ---
 
@@ -136,6 +151,8 @@ The popover shows two collapsible sections — **Local** and **Remote** — with
 
 **Click the copy icon** (appears on hover) next to any branch to copy its name to the clipboard. A confirmation message is shown in the status bar.
 
+**Click the `+` button** in the Local section header to create a new branch inline: the commit input row switches to "branch mode" (blue accent + branch icon). Type a name, press Enter to run `git checkout -b <name>`. Press Esc or click `+` again to cancel.
+
 ### File list
 
 Changed files are grouped by status:
@@ -147,15 +164,48 @@ Changed files are grouped by status:
 | `Deleted` | Files removed from the working tree |
 | `Untracked` | New files not yet tracked by git |
 
-**Double-click** a file to open it in your configured editor.
+Each row shows:
+- A **checkbox** on the left (click a section header's checkbox to select/deselect all its files; the toolbar at the top toggles the entire list)
+- The colored status icon
+- The filename
+- The `+added -deleted` line count from `git diff --numstat` (staged + unstaged merged per file). Untracked files don't show stats. Binary files show `bin`.
+- A diff button (appears on hover)
+
+**Single-click** a filename to copy the relative path to the clipboard — the row flashes green.
+
+**Double-click** anywhere else on the row to open the file in your configured editor.
 
 **Hover** over a file to reveal the `⊞` diff icon on the right. **Click it** to open a two-pane HEAD vs working copy diff directly in your editor (uses `--diff` flag).
+
+**Right-click** any file to open the themed context menu:
+
+| Menu item | Action |
+|---|---|
+| **Add to .gitignore** | Only for untracked files (hidden when the file is `.gitignore` itself). Creates `.gitignore` at the repo root if missing, or appends the relative path (with a trailing `/` for folders). Deduplicates existing entries. |
+| **Select** | Toggles the row's checkbox. |
+| **Copy name** | Copies the basename. |
+| **Copy relative path** | Copies the path relative to the repo root. |
+| **Copy absolute path** | Copies the full filesystem path. |
+| **Reveal in Finder** | Opens the file's enclosing folder in Finder with the file highlighted (`open -R`). |
+
+### Selection and commit
+
+The action bar's **Commit** button is disabled until you have at least one file selected and have typed a commit message. The inline commit input appears above the action bar as soon as a file is checked.
+
+- Select files (individually, by section, or via the "Select all" toolbar button).
+- Type a commit message. Press **Enter** to commit, or click **Commit**.
+- The commit runs `git add -- <files>` followed by `git commit -m <msg> -- <files>`, so only the selected files are staged and committed — any pre-existing staging of unselected files is left untouched.
+- Press **Esc** in the input to clear the selection.
+
+### Live refresh
+
+Any action triggered from the popover that mutates git state (commit, push, pull, checkout, new branch, add-to-.gitignore) causes the popover to re-render in place. Scroll position is preserved, the selection is reset, and listeners are re-attached. You don't need to close and reopen the popover to see the updated file list or branch state.
 
 ### Action buttons
 
 | Button | Action |
 |---|---|
-| **Commit** | Opens a native text input dialog for the commit message, then runs `git commit -m "..."` |
+| **Commit (N)** | Commits only the selected files with the message from the inline input. Disabled when no selection or empty message. |
 | **Push** | Confirms, then runs `git push` |
 | **Pull** | Confirms, then runs `git pull` |
 | **editor name** | Opens a native macOS file picker in `/Applications` to select or change your preferred editor |

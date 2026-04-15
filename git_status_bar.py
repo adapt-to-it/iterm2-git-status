@@ -130,9 +130,49 @@ body {
 }
 
 /* ── Branch collapsible ──────────────────────────────────── */
-.branch-section { margin-bottom: 5px; }
+.branch-section { margin-bottom: 5px; position: relative; }
 
 .branch-toggle { display: none; }
+
+.branch-count { margin-left: auto; font-size: 9px; opacity: 0.5; }
+.local-section .branch-label { padding-right: 30px; }
+.local-section .branch-count { margin-right: 4px; }
+
+.new-branch-btn {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1;
+  padding: 0;
+  transition: all var(--transition);
+  z-index: 2;
+}
+.new-branch-btn:hover {
+  color: var(--blue);
+  border-color: rgba(88,166,255,.45);
+  background: rgba(88,166,255,.08);
+  transform: rotate(90deg);
+}
+.new-branch-btn:active { transform: rotate(90deg) scale(0.92); }
+.new-branch-btn.active {
+  color: var(--blue);
+  border-color: var(--blue);
+  background: rgba(88,166,255,.15);
+  transform: rotate(45deg);
+}
 
 .branch-label {
   display: flex;
@@ -233,12 +273,106 @@ body {
 .branch-item .b-copy:hover { opacity: 1; background: var(--bg-hover); }
 .branch-none { font-size: 10px; color: var(--text-muted); padding: 3px 6px; font-style: italic; }
 
+/* ── Checkbox ────────────────────────────────────────────── */
+.cb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: var(--bg);
+  cursor: pointer;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color var(--transition), background var(--transition);
+  margin: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+.cb:hover {
+  border-color: var(--text-dim);
+  background: var(--bg-hover);
+}
+.cb:checked {
+  background: var(--bg);
+  border-color: var(--accent-dim);
+}
+.cb:checked::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 0px;
+  width: 3px;
+  height: 7px;
+  border: solid var(--accent);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.cb:checked:hover { border-color: var(--accent); }
+.cb:indeterminate {
+  background: var(--bg);
+  border-color: var(--accent-dim);
+}
+.cb:indeterminate::after {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 4px;
+  width: 5px;
+  height: 1.5px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+.file-cb { margin-right: 1px; }
+.section-cb { margin-right: 2px; }
+
+/* ── Select-all toolbar ──────────────────────────────────── */
+.sel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 2px 9px;
+  margin-bottom: 2px;
+  border-bottom: 1px dashed var(--border-dim);
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.sel-toolbar .sel-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px 9px;
+  font-family: var(--font);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.sel-toolbar .sel-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  background: rgba(0,255,135,0.06);
+}
+.sel-toolbar .sel-btn:active { transform: translateY(1px); }
+.sel-count {
+  margin-left: auto;
+  font-size: 9px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  opacity: 0.75;
+}
+.sel-count.has-selection { color: var(--accent); opacity: 1; }
+
 /* ── Section label ───────────────────────────────────────── */
 .section { margin-bottom: 9px; }
 .section-header {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin-bottom: 3px;
 }
 .section-label {
@@ -272,9 +406,43 @@ body {
   -webkit-user-select: none;
 }
 .file:hover { background: var(--bg-hover); color: var(--blue); }
+.file.copied {
+  animation: copyFlash 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+}
+@keyframes copyFlash {
+  0%   { background: rgba(0,255,135,0.28); box-shadow: inset 2px 0 0 var(--accent); }
+  60%  { background: rgba(0,255,135,0.10); box-shadow: inset 2px 0 0 var(--accent-dim); }
+  100% { background: transparent;          box-shadow: inset 2px 0 0 transparent; }
+}
 .file .f-icon { flex-shrink: 0; opacity: 0.6; }
 .file:hover .f-icon { opacity: 1; }
-.file .f-name { overflow: hidden; text-overflow: ellipsis; flex: 1; }
+.file .f-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  cursor: pointer;
+  transition: color var(--transition);
+  min-width: 0;
+}
+.file.copied .f-name { color: var(--accent); }
+.file .f-stat {
+  flex-shrink: 0;
+  font-size: 9.5px;
+  font-family: var(--font);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+  padding: 0 5px 0 6px;
+  margin-left: 2px;
+  border-left: 1px solid var(--border-dim);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  opacity: 0.85;
+  transition: opacity var(--transition);
+}
+.file:hover .f-stat { opacity: 1; }
+.file .f-stat .add { color: var(--green); font-weight: 600; }
+.file .f-stat .del { color: var(--red);   font-weight: 600; margin-left: 2px; }
+.file .f-stat .bin { color: var(--yellow); font-style: italic; }
 .file .diff-btn {
   flex-shrink: 0;
   display: none;
@@ -322,6 +490,93 @@ body {
   color: var(--text-dim);
   font-style: italic;
   padding: 12px 12px;
+}
+
+/* ── Commit input (inline, above actions) ─────────────────── */
+.commit-input-wrap {
+  flex-shrink: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  padding: 0 12px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--border-dim);
+  transition: max-height 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.2s ease,
+              padding 0.2s ease;
+  position: relative;
+}
+.commit-input-wrap.show {
+  max-height: 60px;
+  opacity: 1;
+  padding: 9px 12px 2px;
+}
+.commit-input-wrap::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dim) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.commit-input-wrap.show::before { opacity: 0.85; }
+.commit-input-wrap.mode-branch::before {
+  background: linear-gradient(180deg, var(--blue) 0%, #4a8fdd 100%);
+}
+.commit-input-wrap.mode-branch .commit-input {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2358a6ff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><line x1='6' y1='3' x2='6' y2='15'/><circle cx='18' cy='6' r='3'/><circle cx='6' cy='18' r='3'/><path d='M18 9a9 9 0 0 1-9 9'/></svg>");
+  background-position: 7px center;
+}
+.commit-input-wrap.mode-branch .commit-input:focus {
+  border-color: rgba(88,166,255,.6);
+  box-shadow: 0 0 0 2px rgba(88,166,255,.14);
+}
+.commit-input {
+  width: 100%;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 10px 6px 22px;
+  font-family: var(--font);
+  font-size: 11px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2300cc6a' stroke-width='2.5' stroke-linecap='round'><polyline points='9 18 15 12 9 6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: 8px center;
+}
+.commit-input::placeholder {
+  color: var(--text-dim);
+  opacity: 0.6;
+  font-style: italic;
+}
+.commit-input:focus {
+  border-color: var(--accent-dim);
+  box-shadow: 0 0 0 2px rgba(0,255,135,0.14);
+}
+
+/* ── Disabled button ─────────────────────────────────────── */
+.actions button:disabled,
+.actions button.disabled {
+  color: var(--text-muted) !important;
+  border-color: var(--border-dim) !important;
+  background: var(--bg-active) !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+  opacity: 0.75;
+}
+.actions button:disabled:hover::after,
+.actions button.disabled:hover::after { transform: translateX(-100%); }
+.actions button:disabled:hover,
+.actions button.disabled:hover {
+  color: var(--text-muted) !important;
+  border-color: var(--border-dim) !important;
+  background: var(--bg-active) !important;
 }
 
 /* ── Action bar ──────────────────────────────────────────── */
@@ -417,6 +672,100 @@ body {
   border-color: rgba(110,118,129,.5);
   background: var(--bg-hover);
   box-shadow: 0 3px 10px rgba(0,0,0,.3);
+}
+
+/* ── Context menu ────────────────────────────────────────── */
+.ctx-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 180px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px;
+  box-shadow:
+    0 8px 28px rgba(0,0,0,0.55),
+    0 2px 6px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+  font-family: var(--font);
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0;
+  transform: translateY(-4px) scale(0.98);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity 0.12s ease, transform 0.12s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ctx-menu.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.ctx-menu::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dim) 100%);
+  border-radius: var(--radius) 0 0 var(--radius);
+  opacity: 0.5;
+}
+.ctx-header {
+  padding: 5px 10px 6px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border-dim);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 12px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  transition: background var(--transition), color var(--transition);
+  user-select: none;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+.ctx-item:hover {
+  background: var(--bg-hover);
+  color: var(--accent);
+}
+.ctx-item:hover .ctx-icon { color: var(--accent); opacity: 1; }
+.ctx-icon {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  opacity: 0.8;
+  transition: color var(--transition), opacity var(--transition);
+}
+.ctx-label { flex: 1; }
+.ctx-kbd {
+  font-size: 9px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  padding-left: 10px;
+}
+.ctx-sep {
+  height: 1px;
+  background: var(--border-dim);
+  margin: 3px 4px;
 }
 
 /* ── Status bar ──────────────────────────────────────────── */
@@ -531,6 +880,12 @@ def _git_info(path: str) -> Tuple[Optional[str], Optional[Dict[str, List[str]]]]
     return branch, _parse_porcelain(porcelain)
 
 
+def _git_info_full(path: str):
+    branch, groups = _git_info(path)
+    stats = _git_numstat(path) if groups else {}
+    return branch, groups, stats
+
+
 def _git_branches(cwd: str) -> Dict[str, List[str]]:
     """Returns {"local": [...], "remote": [...], "current": branch_name}."""
     out = _run_git(["branch", "-a", "--no-color"], cwd)
@@ -561,8 +916,55 @@ def _git_checkout(cwd: str, branch: str) -> Tuple[bool, str]:
     return _run_git_result(["checkout", branch], cwd)
 
 
-def _git_commit(cwd: str, message: str) -> Tuple[bool, str]:
+def _git_new_branch(cwd: str, name: str) -> Tuple[bool, str]:
+    import re as _re
+    if not name or not _re.match(r"^[A-Za-z0-9._/\-]+$", name):
+        return False, "Invalid branch name"
+    ok, msg = _run_git_result(["checkout", "-b", name], cwd)
+    if ok:
+        return True, f"Created and switched to '{name}'"
+    return False, msg
+
+
+def _git_commit(cwd: str, message: str, files: Optional[List[str]] = None) -> Tuple[bool, str]:
+    if files:
+        ok, msg = _run_git_result(["add", "--"] + files, cwd)
+        if not ok:
+            return False, msg
+        return _run_git_result(["commit", "-m", message, "--"] + files, cwd)
     return _run_git_result(["commit", "-m", message], cwd)
+
+
+def _git_numstat(cwd: str) -> Dict[str, Tuple[int, int, bool]]:
+    """Returns {filepath: (added, deleted, is_binary)} merging staged + unstaged."""
+    result: Dict[str, Tuple[int, int, bool]] = {}
+    for args in (["diff", "--numstat"], ["diff", "--cached", "--numstat"]):
+        out = _run_git(args, cwd)
+        if not out:
+            continue
+        for line in out.splitlines():
+            parts = line.split("\t", 2)
+            if len(parts) != 3:
+                continue
+            a_str, d_str, path = parts
+            if " => " in path:
+                # rename: "old => new" or "dir/{old => new}/file"
+                if "{" in path and "}" in path:
+                    pre, rest = path.split("{", 1)
+                    mid, post = rest.split("}", 1)
+                    _, new = mid.split(" => ", 1)
+                    path = pre + new + post
+                else:
+                    path = path.split(" => ", 1)[1]
+            is_binary = a_str == "-" or d_str == "-"
+            added = 0 if is_binary else int(a_str)
+            deleted = 0 if is_binary else int(d_str)
+            if path in result:
+                pa, pd, pb = result[path]
+                result[path] = (pa + added, pd + deleted, pb or is_binary)
+            else:
+                result[path] = (added, deleted, is_binary)
+    return result
 
 
 def _git_push(cwd: str) -> Tuple[bool, str]:
@@ -571,6 +973,70 @@ def _git_push(cwd: str) -> Tuple[bool, str]:
 
 def _git_pull(cwd: str) -> Tuple[bool, str]:
     return _run_git_result(["pull"], cwd)
+
+
+def _git_toplevel(cwd: str) -> Optional[str]:
+    out = _run_git(["rev-parse", "--show-toplevel"], cwd)
+    return out.strip() if out else None
+
+
+def _add_to_gitignore(cwd: str, filepath: str) -> Tuple[bool, str]:
+    import os as _os2
+    root = _git_toplevel(cwd)
+    if not root:
+        return False, "Not a git repo"
+
+    abs_path = filepath if _os2.path.isabs(filepath) else _os2.path.join(cwd, filepath)
+    try:
+        rel = _os2.path.relpath(abs_path, root)
+    except ValueError:
+        return False, "Path outside repo"
+    if rel.startswith(".."):
+        return False, "Path outside repo"
+
+    is_dir = _os2.path.isdir(abs_path)
+    entry = rel.replace(_os2.sep, "/")
+    if is_dir and not entry.endswith("/"):
+        entry = entry + "/"
+
+    gi_path = _os2.path.join(root, ".gitignore")
+    existing_lines: List[str] = []
+    had_trailing_newline = True
+    if _os2.path.exists(gi_path):
+        try:
+            with open(gi_path, "r", encoding="utf-8") as fh:
+                content = fh.read()
+        except OSError as e:
+            return False, f"Read error: {e}"
+        had_trailing_newline = content.endswith("\n") if content else True
+        existing_lines = content.splitlines()
+        for line in existing_lines:
+            stripped = line.strip()
+            if stripped == entry or stripped == entry.rstrip("/"):
+                return True, f"Already in .gitignore: {entry}"
+
+    try:
+        with open(gi_path, "a", encoding="utf-8") as fh:
+            if existing_lines and not had_trailing_newline:
+                fh.write("\n")
+            fh.write(entry + "\n")
+    except OSError as e:
+        return False, f"Write error: {e}"
+
+    kind = "folder" if is_dir else "file"
+    return True, f"Added {kind} to .gitignore: {entry}"
+
+
+def _reveal_in_finder(cwd: str, filepath: str) -> Tuple[bool, str]:
+    import os as _os2
+    abs_path = filepath if _os2.path.isabs(filepath) else _os2.path.join(cwd, filepath)
+    if not _os2.path.exists(abs_path):
+        return False, f"Not found: {filepath}"
+    try:
+        subprocess.run(["open", "-R", abs_path], check=True, timeout=5)
+        return True, f"Revealed: {_os2.path.basename(abs_path)}"
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired, FileNotFoundError, OSError) as e:
+        return False, str(e)
 
 
 import os as _os
@@ -741,7 +1207,7 @@ def _summary_text(path: str) -> str:
 
 def _popover_html(path: str, session_id: str) -> str:
     """Full interactive HTML for the click popover."""
-    branch, groups = _git_info(path)
+    branch, groups, stats = _git_info_full(path)
     safe_path = html.escape(path)
 
     # SVG icons (inline, no external deps)
@@ -806,13 +1272,14 @@ def _popover_html(path: str, session_id: str) -> str:
     remote_count = len(branches["remote"])
 
     branches_html = f"""
-<div class="branch-section">
+<div class="branch-section local-section">
   <input type="checkbox" id="tl" class="branch-toggle" checked>
   <label for="tl" class="branch-label">
     <span class="chevron">{ICO_CHEVRON}</span>
     {ICO_BRANCH}&nbsp;Local
-    <span style="margin-left:auto;font-size:9px;opacity:0.5">{local_count}</span>
+    <span class="branch-count">{local_count}</span>
   </label>
+  <button type="button" id="new-branch-btn" class="new-branch-btn" title="Create new branch">+</button>
   <div class="branch-list">{local_items}</div>
 </div>
 <div class="branch-section">
@@ -836,25 +1303,48 @@ def _popover_html(path: str, session_id: str) -> str:
     sections = []
     seen: set = set()
 
-    def file_div(f: str, f_icon: str) -> str:
-        safe_f = html.escape(f)
+    def stat_html(f: str, key: str) -> str:
+        if key == "?":
+            return ""
+        s = stats.get(f)
+        if not s:
+            return ""
+        added, deleted, is_bin = s
+        if is_bin:
+            return "<span class='f-stat'><span class='bin'>bin</span></span>"
         return (
-            f'<div class="file" title="{safe_f} (double-click to open)" data-file="{safe_f}">'
+            "<span class='f-stat'>"
+            f"<span class='add'>+{added}</span> "
+            f"<span class='del'>-{deleted}</span>"
+            "</span>"
+        )
+
+    def file_div(f: str, f_icon: str, key: str) -> str:
+        safe_f = html.escape(f)
+        safe_k = html.escape(key)
+        return (
+            f'<div class="file" title="{safe_f}" data-file="{safe_f}" data-status="{safe_k}">'
+            f'<input type="checkbox" class="cb file-cb" data-file="{safe_f}">'
             f'<span class="f-icon">{f_icon}</span>'
-            f'<span class="f-name">{safe_f}</span>'
+            f'<span class="f-name" data-file="{safe_f}">{safe_f}</span>'
+            f'{stat_html(f, key)}'
             f'<span class="diff-btn" data-diff="{safe_f}" title="Open diff view">{ICO_DIFF}</span>'
             f'</div>'
         )
 
+    total_files = 0
     for css_class, key, label, f_icon in canonical:
         files = groups.get(key, [])
         if not files:
             continue
         seen.add(key)
-        rows = "".join(file_div(f, f_icon) for f in files)
+        total_files += len(files)
+        safe_section = html.escape(css_class)
+        rows = "".join(file_div(f, f_icon, key) for f in files)
         sections.append(
-            f'<div class="section {css_class}">'
+            f'<div class="section {css_class}" data-section="{safe_section}">'
             f'<div class="section-header">'
+            f'<input type="checkbox" class="cb section-cb" data-section="{safe_section}">'
             f'<span class="section-label">{label} ({len(files)})</span>'
             f'</div>'
             f'{rows}</div>'
@@ -862,19 +1352,28 @@ def _popover_html(path: str, session_id: str) -> str:
     for key, files in groups.items():
         if key in seen or not files:
             continue
-        rows = "".join(file_div(f, ICO_FILE) for f in files)
+        total_files += len(files)
+        safe_section = "other_" + html.escape(key)
+        rows = "".join(file_div(f, ICO_FILE, key) for f in files)
         sections.append(
-            f'<div class="section other">'
+            f'<div class="section other" data-section="{safe_section}">'
             f'<div class="section-header">'
+            f'<input type="checkbox" class="cb section-cb" data-section="{safe_section}">'
             f'<span class="section-label">{html.escape(key)} ({len(files)})</span>'
             f'</div>'
             f'{rows}</div>'
         )
 
-    files_body = (
-        "".join(sections) if sections
-        else f'<div class="clean">{ICO_CLEAN} Working tree clean</div>'
-    )
+    if sections:
+        toolbar = (
+            f'<div class="sel-toolbar">'
+            f'<button type="button" class="sel-btn" id="sel-all-btn">Select all</button>'
+            f'<span class="sel-count" id="sel-count">0 / {total_files} selected</span>'
+            f'</div>'
+        )
+        files_body = toolbar + "".join(sections)
+    else:
+        files_body = f'<div class="clean">{ICO_CLEAN} Working tree clean</div>'
 
     # Editor label for the button
     saved_editor = _get_saved_editor()
@@ -891,6 +1390,7 @@ def _popover_html(path: str, session_id: str) -> str:
     js = f"""
 <script>
 var SESSION_ID = "{js_sid}";
+var REPO_PATH = {json.dumps(path)};
 
 function setStatus(msg, cls) {{
   var bar = document.getElementById('status-bar');
@@ -926,11 +1426,21 @@ function onResult(resultJson) {{
   }}
 }}
 
+function onMutatingResult(resultJson) {{
+  try {{
+    var r = JSON.parse(resultJson);
+    setStatus(r.message || (r.ok ? 'Done' : 'Failed'), r.ok ? 'ok' : 'err');
+    if (r.ok) refreshContent();
+  }} catch(e) {{
+    setStatus(String(resultJson), 'err');
+  }}
+}}
+
 function doCheckout(branch) {{
   setStatus('Switching to ' + branch + '\u2026', 'loading');
   iterm2Invoke(
-    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "checkout", arg: "' + branch + '")',
-    'onResult'
+    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "checkout", arg: "' + escArg(branch) + '")',
+    'onMutatingResult'
   );
 }}
 
@@ -950,47 +1460,388 @@ function doDiffView(filepath) {{
   );
 }}
 
-function doAction(action) {{
+function escArg(s) {{
+  return String(s).replace(/\\\\/g, '\\\\\\\\').replace(/"/g, '\\\\"');
+}}
+
+var MUTATING_ACTIONS = {{commit:1, push:1, pull:1, checkout:1, new_branch:1, gitignore:1}};
+
+function doAction(action, argStr) {{
   setStatus(action.charAt(0).toUpperCase() + action.slice(1) + '\u2026', 'loading');
+  var a = argStr == null ? "" : escArg(argStr);
+  var cb = MUTATING_ACTIONS[action] ? 'onMutatingResult' : 'onResult';
   iterm2Invoke(
-    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "' + action + '", arg: "")',
-    'onResult'
+    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "' + action + '", arg: "' + a + '")',
+    cb
   );
 }}
 
-document.addEventListener('DOMContentLoaded', function() {{
-  // Branch double-click
-  document.querySelectorAll('.branch-item').forEach(function(el) {{
-    el.addEventListener('mousedown', function(e) {{ e.preventDefault(); }});
-    el.addEventListener('dblclick', function(e) {{
-      e.preventDefault();
-      var branch = el.getAttribute('data-branch');
-      if (branch) doCheckout(branch);
-    }});
+function getSelectedFiles() {{
+  var out = [];
+  document.querySelectorAll('.file-cb:checked').forEach(function(cb) {{
+    out.push(cb.getAttribute('data-file'));
+  }});
+  return out;
+}}
+
+function updateSelectionUI() {{
+  var allFileCbs = document.querySelectorAll('.file-cb');
+  var total = allFileCbs.length;
+  var selected = getSelectedFiles();
+  var count = selected.length;
+
+  var countEl = document.getElementById('sel-count');
+  if (countEl) {{
+    countEl.textContent = count + ' / ' + total + ' selected';
+    countEl.classList.toggle('has-selection', count > 0);
+  }}
+
+  var selAllBtn = document.getElementById('sel-all-btn');
+  if (selAllBtn) {{
+    selAllBtn.textContent = (count === total && total > 0) ? 'Deselect all' : 'Select all';
+  }}
+
+  document.querySelectorAll('.section').forEach(function(sec) {{
+    var cbs = sec.querySelectorAll('.file-cb');
+    var checked = sec.querySelectorAll('.file-cb:checked').length;
+    var secCb = sec.querySelector('.section-cb');
+    if (!secCb) return;
+    if (checked === 0) {{
+      secCb.checked = false;
+      secCb.indeterminate = false;
+    }} else if (checked === cbs.length) {{
+      secCb.checked = true;
+      secCb.indeterminate = false;
+    }} else {{
+      secCb.checked = false;
+      secCb.indeterminate = true;
+    }}
   }});
 
-  // Branch copy button
-  document.querySelectorAll('.b-copy').forEach(function(el) {{
-    el.addEventListener('click', function(e) {{
+  updateCommitUI();
+}}
+
+var INPUT_MODE = 'commit'; // 'commit' | 'branch'
+
+function setInputMode(mode) {{
+  INPUT_MODE = mode;
+  var wrap = document.getElementById('commit-input-wrap');
+  var input = document.getElementById('commit-input');
+  var newBtn = document.getElementById('new-branch-btn');
+  if (wrap) wrap.classList.toggle('mode-branch', mode === 'branch');
+  if (newBtn) newBtn.classList.toggle('active', mode === 'branch');
+  if (input) {{
+    input.placeholder = (mode === 'branch')
+      ? 'Branch name\u2026 (press Enter to create)'
+      : 'Commit message\u2026';
+  }}
+  updateCommitUI();
+}}
+
+function updateCommitUI() {{
+  var selected = getSelectedFiles();
+  var wrap = document.getElementById('commit-input-wrap');
+  var input = document.getElementById('commit-input');
+  var btn = document.getElementById('commit-btn');
+  var hasSel = selected.length > 0;
+  var isBranch = (INPUT_MODE === 'branch');
+
+  if (wrap) {{
+    if (hasSel || isBranch) wrap.classList.add('show');
+    else {{
+      wrap.classList.remove('show');
+      if (input) input.value = '';
+    }}
+  }}
+  if (btn) {{
+    var msg = input ? input.value.trim() : '';
+    var enabled = !isBranch && hasSel && msg.length > 0;
+    btn.disabled = !enabled;
+    btn.classList.toggle('disabled', !enabled);
+    btn.querySelector('.commit-label').textContent =
+      hasSel ? ('Commit (' + selected.length + ')') : 'Commit';
+  }}
+}}
+
+function doCommit() {{
+  var input = document.getElementById('commit-input');
+  var msg = input ? input.value.trim() : '';
+  var files = getSelectedFiles();
+  if (!msg || files.length === 0) return;
+  var payload = JSON.stringify({{message: msg, files: files}});
+  setStatus('Committing\u2026', 'loading');
+  iterm2Invoke(
+    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "commit", arg: "' + escArg(payload) + '")',
+    'onMutatingResult'
+  );
+}}
+
+function doCreateBranch() {{
+  var input = document.getElementById('commit-input');
+  var name = input ? input.value.trim() : '';
+  if (!name) return;
+  // basic client-side validation
+  if (!/^[A-Za-z0-9._\\/\\-]+$/.test(name)) {{
+    setStatus('Invalid branch name', 'err');
+    return;
+  }}
+  setStatus('Creating branch\u2026', 'loading');
+  iterm2Invoke(
+    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "new_branch", arg: "' + escArg(name) + '")',
+    'onMutatingResult'
+  );
+  if (input) input.value = '';
+  setInputMode('commit');
+}}
+
+function joinPath(base, rel) {{
+  if (!base) return rel;
+  if (rel.charAt(0) === '/') return rel;
+  var b = base.replace(/\\/+$/, '');
+  return b + '/' + rel;
+}}
+
+function basename(p) {{
+  var parts = String(p).split('/');
+  return parts[parts.length - 1] || p;
+}}
+
+function copyToClipboard(text, label, rowEl) {{
+  var done = function() {{
+    setStatus((label ? label + ': ' : 'Copied: ') + text, 'ok');
+    if (rowEl) {{
+      rowEl.classList.remove('copied');
+      void rowEl.offsetWidth;
+      rowEl.classList.add('copied');
+      setTimeout(function() {{ rowEl.classList.remove('copied'); }}, 750);
+    }}
+  }};
+  if (navigator.clipboard) {{
+    navigator.clipboard.writeText(text).then(done, done);
+  }} else {{
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {{ document.execCommand('copy'); }} catch(e) {{}}
+    document.body.removeChild(ta);
+    done();
+  }}
+}}
+
+var CTX_ICONS = {{
+  check:  "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>",
+  copy:   "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><rect x='9' y='9' width='13' height='13' rx='2' ry='2'/><path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/></svg>",
+  rel:    "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><polyline points='10 17 15 12 10 7'/><line x1='4' y1='12' x2='15' y2='12'/></svg>",
+  abs:    "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><line x1='3' y1='12' x2='21' y2='12'/><polyline points='16 7 21 12 16 17'/><line x1='21' y1='4' x2='21' y2='20'/></svg>",
+  finder: "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'/></svg>",
+  ignore: "<svg width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><line x1='5.6' y1='5.6' x2='18.4' y2='18.4'/></svg>"
+}};
+
+function hideContextMenu() {{
+  var m = document.getElementById('ctx-menu');
+  if (!m) return;
+  m.classList.remove('show');
+  setTimeout(function() {{ if (m && !m.classList.contains('show')) m.remove(); }}, 140);
+}}
+
+function showContextMenu(x, y, filepath, rowEl) {{
+  hideContextMenu();
+
+  var absPath = joinPath(REPO_PATH, filepath);
+  var fname = basename(filepath);
+  var status = rowEl ? rowEl.getAttribute('data-status') : '';
+  var isUntracked = (status === '?');
+  var canIgnore = isUntracked && fname !== '.gitignore';
+
+  var menu = document.createElement('div');
+  menu.id = 'ctx-menu';
+  menu.className = 'ctx-menu';
+
+  var header = document.createElement('div');
+  header.className = 'ctx-header';
+  header.textContent = fname;
+  menu.appendChild(header);
+
+  var items = [];
+  if (canIgnore) {{
+    items.push({{ icon: CTX_ICONS.ignore, label: 'Add to .gitignore', action: function() {{
+        doAction('gitignore', filepath);
+    }}}});
+    items.push({{ sep: true }});
+  }}
+  items = items.concat([
+    {{ icon: CTX_ICONS.check,  label: 'Select',              action: function() {{
+        var cb = rowEl ? rowEl.querySelector('.file-cb') : null;
+        if (cb) {{ cb.checked = !cb.checked; updateSelectionUI(); }}
+    }}}},
+    {{ sep: true }},
+    {{ icon: CTX_ICONS.copy,   label: 'Copy name',           action: function() {{
+        copyToClipboard(fname, 'Name copied', rowEl);
+    }}}},
+    {{ icon: CTX_ICONS.rel,    label: 'Copy relative path',  action: function() {{
+        copyToClipboard(filepath, 'Relative copied', rowEl);
+    }}}},
+    {{ icon: CTX_ICONS.abs,    label: 'Copy absolute path',  action: function() {{
+        copyToClipboard(absPath, 'Absolute copied', rowEl);
+    }}}},
+    {{ sep: true }},
+    {{ icon: CTX_ICONS.finder, label: 'Reveal in Finder',    action: function() {{
+        doAction('reveal', filepath);
+    }}}}
+  ]);
+
+  items.forEach(function(it) {{
+    if (it.sep) {{
+      var s = document.createElement('div');
+      s.className = 'ctx-sep';
+      menu.appendChild(s);
+      return;
+    }}
+    var row = document.createElement('div');
+    row.className = 'ctx-item';
+    row.innerHTML =
+      '<span class="ctx-icon">' + it.icon + '</span>' +
+      '<span class="ctx-label">' + it.label + '</span>';
+    row.addEventListener('mousedown', function(e) {{ e.preventDefault(); }});
+    row.addEventListener('click', function(e) {{
+      e.preventDefault();
       e.stopPropagation();
-      e.preventDefault();
-      var branch = el.getAttribute('data-branch');
-      if (branch) copyBranch(branch);
+      hideContextMenu();
+      it.action();
     }});
+    menu.appendChild(row);
   }});
 
-  // File double-click → open file
+  document.body.appendChild(menu);
+
+  // Position with edge-clamp
+  var vw = window.innerWidth, vh = window.innerHeight;
+  menu.style.left = '0px';
+  menu.style.top = '0px';
+  var rect = menu.getBoundingClientRect();
+  var mw = rect.width, mh = rect.height;
+  var posX = x, posY = y;
+  if (posX + mw + 6 > vw) posX = Math.max(4, vw - mw - 6);
+  if (posY + mh + 6 > vh) posY = Math.max(4, y - mh);
+  if (posY < 4) posY = 4;
+  menu.style.left = posX + 'px';
+  menu.style.top = posY + 'px';
+
+  requestAnimationFrame(function() {{ menu.classList.add('show'); }});
+}}
+
+function copyFilename(filepath, nameEl) {{
+  var rowEl = nameEl ? nameEl.closest('.file') : null;
+  var done = function() {{
+    setStatus('Copied: ' + filepath, 'ok');
+    if (rowEl) {{
+      rowEl.classList.remove('copied');
+      void rowEl.offsetWidth;
+      rowEl.classList.add('copied');
+      setTimeout(function() {{ rowEl.classList.remove('copied'); }}, 750);
+    }}
+  }};
+  if (navigator.clipboard) {{
+    navigator.clipboard.writeText(filepath).then(done, done);
+  }} else {{
+    var ta = document.createElement('textarea');
+    ta.value = filepath;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {{ document.execCommand('copy'); }} catch(e) {{}}
+    document.body.removeChild(ta);
+    done();
+  }}
+}}
+
+function refreshContent(afterMsg) {{
+  var onRefresh = 'onRefreshResult';
+  window[onRefresh] = function(resultJson) {{
+    try {{
+      var r = JSON.parse(resultJson);
+      if (!r || !r.ok || !r.html) return;
+      var doc = new DOMParser().parseFromString(r.html, 'text/html');
+      var newScroll = doc.querySelector('.scroll-area');
+      var curScroll = document.querySelector('.scroll-area');
+      if (newScroll && curScroll) {{
+        // preserve scroll position
+        var scrollTop = curScroll.scrollTop;
+        curScroll.innerHTML = newScroll.innerHTML;
+        curScroll.scrollTop = scrollTop;
+      }}
+      var newBadge = doc.querySelector('.header-badge');
+      var curBadge = document.querySelector('.header-badge');
+      if (newBadge && curBadge) curBadge.textContent = newBadge.textContent;
+      var newBranch = doc.querySelector('.header-branch');
+      var curBranch = document.querySelector('.header-branch');
+      if (newBranch && curBranch) curBranch.textContent = newBranch.textContent;
+      // reset selection state & input mode
+      INPUT_MODE = 'commit';
+      attachFileListeners();
+      updateSelectionUI();
+      if (afterMsg) setStatus(afterMsg, 'ok');
+    }} catch (e) {{}}
+  }};
+  iterm2Invoke(
+    'git_status_bar_action(session_id: "' + SESSION_ID + '", action: "refresh", arg: "")',
+    onRefresh
+  );
+}}
+
+function attachFileListeners() {{
+  // File rows
   document.querySelectorAll('.file').forEach(function(el) {{
-    el.addEventListener('mousedown', function(e) {{ e.preventDefault(); }});
+    if (el.dataset.bound) return;
+    el.dataset.bound = '1';
     el.addEventListener('dblclick', function(e) {{
+      var t = e.target;
+      if (t.classList && (t.classList.contains('cb') || t.classList.contains('diff-btn'))) return;
+      if (t.closest && t.closest('.diff-btn')) return;
       e.preventDefault();
       var filepath = el.getAttribute('data-file');
       if (filepath) doDiff(filepath);
     }});
+    el.addEventListener('contextmenu', function(e) {{
+      var t = e.target;
+      if (t.classList && (t.classList.contains('cb') || t.classList.contains('diff-btn'))) return;
+      if (t.closest && t.closest('.diff-btn')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      var filepath = el.getAttribute('data-file');
+      if (filepath) showContextMenu(e.clientX, e.clientY, filepath, el);
+    }});
   }});
 
-  // Diff button click → open diff view
+  // Filename single-click → copy
+  document.querySelectorAll('.file .f-name').forEach(function(nameEl) {{
+    if (nameEl.dataset.bound) return;
+    nameEl.dataset.bound = '1';
+    var clickTimer = null;
+    nameEl.addEventListener('mousedown', function(e) {{ e.preventDefault(); }});
+    nameEl.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      e.preventDefault();
+      if (clickTimer) return;
+      clickTimer = setTimeout(function() {{
+        clickTimer = null;
+        var filepath = nameEl.getAttribute('data-file');
+        if (filepath) copyFilename(filepath, nameEl);
+      }}, 220);
+    }});
+    nameEl.addEventListener('dblclick', function(e) {{
+      if (clickTimer) {{ clearTimeout(clickTimer); clickTimer = null; }}
+    }});
+  }});
+
+  // Diff buttons
   document.querySelectorAll('.diff-btn').forEach(function(btn) {{
+    if (btn.dataset.bound) return;
+    btn.dataset.bound = '1';
     btn.addEventListener('mousedown', function(e) {{ e.stopPropagation(); e.preventDefault(); }});
     btn.addEventListener('click', function(e) {{
       e.stopPropagation();
@@ -999,6 +1850,141 @@ document.addEventListener('DOMContentLoaded', function() {{
       if (filepath) doDiffView(filepath);
     }});
   }});
+
+  // File checkboxes
+  document.querySelectorAll('.file-cb').forEach(function(cb) {{
+    if (cb.dataset.bound) return;
+    cb.dataset.bound = '1';
+    cb.addEventListener('click', function(e) {{ e.stopPropagation(); }});
+    cb.addEventListener('change', function() {{ updateSelectionUI(); }});
+  }});
+
+  // Section checkboxes
+  document.querySelectorAll('.section-cb').forEach(function(cb) {{
+    if (cb.dataset.bound) return;
+    cb.dataset.bound = '1';
+    cb.addEventListener('click', function(e) {{ e.stopPropagation(); }});
+    cb.addEventListener('change', function() {{
+      var sec = cb.closest('.section');
+      if (!sec) return;
+      var checked = cb.checked;
+      sec.querySelectorAll('.file-cb').forEach(function(fcb) {{ fcb.checked = checked; }});
+      updateSelectionUI();
+    }});
+  }});
+
+  // Select all
+  var selAllBtn = document.getElementById('sel-all-btn');
+  if (selAllBtn && !selAllBtn.dataset.bound) {{
+    selAllBtn.dataset.bound = '1';
+    selAllBtn.addEventListener('click', function(e) {{
+      e.preventDefault();
+      var all = document.querySelectorAll('.file-cb');
+      var total = all.length;
+      var checked = document.querySelectorAll('.file-cb:checked').length;
+      var newState = !(checked === total && total > 0);
+      all.forEach(function(cb) {{ cb.checked = newState; }});
+      updateSelectionUI();
+    }});
+  }}
+
+  // Branch rows (double-click checkout, copy button)
+  document.querySelectorAll('.branch-item').forEach(function(el) {{
+    if (el.dataset.bound) return;
+    el.dataset.bound = '1';
+    el.addEventListener('mousedown', function(e) {{ e.preventDefault(); }});
+    el.addEventListener('dblclick', function(e) {{
+      e.preventDefault();
+      var branch = el.getAttribute('data-branch');
+      if (branch) doCheckout(branch);
+    }});
+  }});
+  document.querySelectorAll('.b-copy').forEach(function(el) {{
+    if (el.dataset.bound) return;
+    el.dataset.bound = '1';
+    el.addEventListener('click', function(e) {{
+      e.stopPropagation();
+      e.preventDefault();
+      var branch = el.getAttribute('data-branch');
+      if (branch) copyBranch(branch);
+    }});
+  }});
+
+  // New branch button
+  var newBtn = document.getElementById('new-branch-btn');
+  if (newBtn && !newBtn.dataset.bound) {{
+    newBtn.dataset.bound = '1';
+    newBtn.addEventListener('click', function(e) {{
+      e.preventDefault();
+      e.stopPropagation();
+      var input = document.getElementById('commit-input');
+      if (INPUT_MODE === 'branch') {{
+        if (input) input.value = '';
+        setInputMode('commit');
+      }} else {{
+        setInputMode('branch');
+        if (input) {{
+          input.value = '';
+          setTimeout(function() {{ input.focus(); }}, 30);
+        }}
+      }}
+    }});
+  }}
+}}
+
+document.addEventListener('DOMContentLoaded', function() {{
+  attachFileListeners();
+
+  // Dismiss context menu
+  document.addEventListener('mousedown', function(e) {{
+    var m = document.getElementById('ctx-menu');
+    if (m && !m.contains(e.target)) hideContextMenu();
+  }});
+  document.addEventListener('keydown', function(e) {{
+    if (e.key === 'Escape') hideContextMenu();
+  }});
+  var scrollArea = document.querySelector('.scroll-area');
+  if (scrollArea) scrollArea.addEventListener('scroll', hideContextMenu);
+  window.addEventListener('blur', hideContextMenu);
+  window.addEventListener('resize', hideContextMenu);
+  document.addEventListener('contextmenu', function(e) {{
+    // Suppress default browser context menu anywhere outside file rows
+    if (!e.target.closest('.file')) e.preventDefault();
+  }});
+
+  // Commit / branch input
+  var input = document.getElementById('commit-input');
+  if (input) {{
+    input.addEventListener('input', updateCommitUI);
+    input.addEventListener('keydown', function(e) {{
+      if (e.key === 'Enter') {{
+        e.preventDefault();
+        if (INPUT_MODE === 'branch') doCreateBranch();
+        else doCommit();
+      }} else if (e.key === 'Escape') {{
+        e.preventDefault();
+        if (INPUT_MODE === 'branch') {{
+          input.value = '';
+          setInputMode('commit');
+        }} else {{
+          document.querySelectorAll('.file-cb').forEach(function(cb) {{ cb.checked = false; }});
+          updateSelectionUI();
+        }}
+      }}
+    }});
+  }}
+
+  // Commit button
+  var commitBtn = document.getElementById('commit-btn');
+  if (commitBtn) {{
+    commitBtn.addEventListener('click', function(e) {{
+      e.preventDefault();
+      if (commitBtn.disabled) return;
+      doCommit();
+    }});
+  }}
+
+  updateSelectionUI();
 }});
 </script>
 """
@@ -1017,9 +2003,15 @@ document.addEventListener('DOMContentLoaded', function() {{
         f"<div class='divider'></div>"
         f"{files_body}"
         f"</div>"
+        # Inline commit input (shown when files selected)
+        f"<div id='commit-input-wrap' class='commit-input-wrap'>"
+        f"<input id='commit-input' class='commit-input' type='text' "
+        f"placeholder='Commit message\u2026' autocomplete='off' spellcheck='false'>"
+        f"</div>"
         # Action buttons
         f"<div class='actions'>"
-        f"<button class='commit' onclick='doAction(\"commit\")'>{ICO_COMMIT}&nbsp;Commit</button>"
+        f"<button id='commit-btn' class='commit disabled' disabled>"
+        f"{ICO_COMMIT}&nbsp;<span class='commit-label'>Commit</span></button>"
         f"<button class='push'   onclick='doAction(\"push\")'  >{ICO_PUSH}&nbsp;Push</button>"
         f"<button class='pull'   onclick='doAction(\"pull\")'  >{ICO_PULL}&nbsp;Pull</button>"
         f"<button class='editor' onclick='doAction(\"set_editor\")' title='Editor: {editor_title}'>"
@@ -1104,19 +2096,20 @@ async def main(connection: iterm2.Connection):
             return json.dumps({"ok": False, "message": "Cancelled"})
 
         elif action == "commit":
-            text_alert = iterm2.TextInputAlert(
-                "Git Commit",
-                "Enter commit message:",
-                "Commit message...",
-                "",
+            try:
+                payload = json.loads(arg) if arg else {}
+            except (ValueError, TypeError):
+                return json.dumps({"ok": False, "message": "Invalid commit payload"})
+            message = (payload.get("message") or "").strip()
+            files = payload.get("files") or []
+            if not message:
+                return json.dumps({"ok": False, "message": "Empty commit message"})
+            if not files:
+                return json.dumps({"ok": False, "message": "No files selected"})
+            ok, msg = await loop.run_in_executor(
+                None, _git_commit, path, message, files
             )
-            message = await text_alert.async_run(connection)
-            if message and message.strip():
-                ok, msg = await loop.run_in_executor(
-                    None, _git_commit, path, message.strip()
-                )
-                return json.dumps({"ok": ok, "message": msg})
-            return json.dumps({"ok": False, "message": "Cancelled"})
+            return json.dumps({"ok": ok, "message": msg})
 
         elif action == "push":
             alert = iterm2.Alert("Git Push", "Push to remote?")
@@ -1158,6 +2151,22 @@ async def main(connection: iterm2.Connection):
                 await loop.run_in_executor(None, _save_editor, selected)
                 editor = selected
             ok, msg = await loop.run_in_executor(None, _open_editor_diff, path, arg, editor)
+            return json.dumps({"ok": ok, "message": msg})
+
+        elif action == "reveal":
+            ok, msg = await loop.run_in_executor(None, _reveal_in_finder, path, arg)
+            return json.dumps({"ok": ok, "message": msg})
+
+        elif action == "gitignore":
+            ok, msg = await loop.run_in_executor(None, _add_to_gitignore, path, arg)
+            return json.dumps({"ok": ok, "message": msg})
+
+        elif action == "refresh":
+            html_str = await loop.run_in_executor(None, _popover_html, path, session_id)
+            return json.dumps({"ok": True, "message": "", "html": html_str})
+
+        elif action == "new_branch":
+            ok, msg = await loop.run_in_executor(None, _git_new_branch, path, arg)
             return json.dumps({"ok": ok, "message": msg})
 
         elif action == "set_editor":
