@@ -223,7 +223,7 @@ body {
   padding-bottom: 2px;
   animation: slideDown 0.15s ease;
 }
-.branch-toggle:checked + .branch-label + .branch-list { display: block; }
+.branch-toggle:checked ~ .branch-list { display: block; }
 
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-4px); }
