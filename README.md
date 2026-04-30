@@ -330,3 +330,9 @@ When submitting a PR:
 - [iTerm2 Python API documentation](https://iterm2.com/python-api/)
 - [iTerm2 Status Bar documentation](https://iterm2.com/documentation-status-bar.html)
 - [iTerm2 Shell Integration](https://iterm2.com/documentation-shell-integration.html)
+
+---
+
+## Quick file sharing
+
+Learn how to quickly share files locally and remotely: [droplnk.app](https://droplnk.app) · [droplnk.app/s/](https://droplnk.app/s/)
